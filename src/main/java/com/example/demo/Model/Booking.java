@@ -5,7 +5,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Document(collection = "bookings")
 @Data
@@ -15,19 +16,18 @@ import java.time.LocalTime;
 public class Booking {
 
     @Id
-    private String id;   // better naming than transactionId
+    private String id;
 
     private String userId;
-    private String travelerId;
     private String museumId;
 
-    private int noOfTravelers;
-    private double totalCost;
+    private List<String> travellerIds;
 
-    private String modeOfBooking;   // ONLINE / OFFLINE
-    private boolean checkedIn;
-    private String paymentStatus;   // PAID / PENDING
+    private double pricePerTicket;
+    private double totalAmount;
 
-    private LocalDate date;
-    private LocalTime time;
+    private String status; // PENDING, PAID, CANCELLED
+
+    private LocalDate visitDate;   // 🔥 REQUIRED for ticket cap logic
+    private LocalDateTime createdAt;
 }

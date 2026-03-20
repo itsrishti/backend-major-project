@@ -1,49 +1,47 @@
 package com.example.demo.Controller;
 
-import com.example.demo.Model.Traveler;
-import com.example.demo.Service.TravelerService;
+import com.example.demo.Model.Traveller;
+import com.example.demo.Service.TravellerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/travelers")
-@CrossOrigin
+@RequestMapping("/travellers")
 @RequiredArgsConstructor
 public class TravellerController {
 
-    private final TravelerService travelerService;
+    private final TravellerService travellerService;
 
-    // Create new traveler
+    // CREATE
     @PostMapping
-    public Traveler createTraveler(@RequestBody Traveler traveler) {
-        return travelerService.createTraveler(traveler);
+    public Traveller createTraveller(@RequestBody Traveller traveller) {
+        return travellerService.createTraveller(traveller);
     }
 
+    // GET all travellers by userId
+    @GetMapping("/user/{userId}")
+    public List<Traveller> getTravellersByUser(@PathVariable String userId) {
+        return travellerService.getTravellersByUser(userId);
+    }
+
+    // GET single traveller
     @GetMapping("/{id}")
-    public ResponseEntity<Traveler> getTravelerById(@PathVariable String id) {
-        return travelerService.getTravelerById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public Traveller getTravellerById(@PathVariable String id) {
+        return travellerService.getTravellerById(id);
     }
 
-    // Get all travelers
-    @GetMapping
-    public List<Traveler> getAllTravelers() {
-        return travelerService.getAllTravelers();
-    }
-
-    // Update traveler
+    // UPDATE
     @PutMapping("/{id}")
-    public Traveler updateTraveler(@PathVariable String id, @RequestBody Traveler traveler) {
-        return travelerService.updateTraveler(id, traveler);
+    public Traveller updateTraveller(@PathVariable String id,
+                                     @RequestBody Traveller traveller) {
+        return travellerService.updateTraveller(id, traveller);
     }
 
-    // Delete traveler
+    // DELETE
     @DeleteMapping("/{id}")
-    public void deleteTraveler(@PathVariable String id) {
-        travelerService.deleteTraveler(id);
+    public void deleteTraveller(@PathVariable String id) {
+        travellerService.deleteTraveller(id);
     }
 }

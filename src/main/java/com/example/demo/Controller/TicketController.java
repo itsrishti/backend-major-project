@@ -6,55 +6,30 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/tickets")
-@CrossOrigin
+@RequestMapping("/ticket")
 @RequiredArgsConstructor
+@CrossOrigin
 public class TicketController {
 
     private final TicketService ticketService;
 
-    // Create Ticket
-    @PostMapping
-    public Ticket createTicket(@RequestBody Ticket ticket) {
-        return ticketService.createTicket(ticket);
+    // GET ALL TICKETS BY BOOKING
+    @GetMapping("/booking/{bookingId}")
+    public List<Ticket> getTickets(@PathVariable String bookingId) {
+        return ticketService.getTicketsByBooking(bookingId);
     }
 
-    // Get Ticket by ID
-    @GetMapping("/{id}")
-    public Optional<Ticket> getTicketById(@PathVariable String id) {
-        return ticketService.getTicketById(id);
+    // GET SINGLE TICKET
+    @GetMapping("/{ticketId}")
+    public Ticket getTicket(@PathVariable String ticketId) {
+        return ticketService.getTicketById(ticketId);
     }
 
-    // Get All Tickets
-    @GetMapping
-    public List<Ticket> getAllTickets() {
-        return ticketService.getAllTickets();
-    }
-
-    // Update Ticket
-    @PutMapping("/{id}")
-    public Ticket updateTicket(@PathVariable String id, @RequestBody Ticket ticket) {
-        return ticketService.updateTicket(id, ticket);
-    }
-
-    // Delete Ticket
-    @DeleteMapping("/{id}")
-    public void deleteTicket(@PathVariable String id) {
-        ticketService.deleteTicket(id);
-    }
-
-    // Get Tickets by Nationality
-    @GetMapping("/nationality/{nationality}")
-    public List<Ticket> getTicketsByNationality(@PathVariable String nationality) {
-        return ticketService.getTicketsByNationality(nationality);
-    }
-
-    // Get All Student Tickets
-    @GetMapping("/students")
-    public List<Ticket> getStudentTickets() {
-        return ticketService.getStudentTickets();
+    // SCAN
+    @GetMapping("/scan")
+    public Ticket scan(@RequestParam String qrCode) {
+        return ticketService.scanTicket(qrCode);
     }
 }

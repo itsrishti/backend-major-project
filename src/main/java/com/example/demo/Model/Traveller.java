@@ -4,25 +4,19 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "tickets")
+@Document(collection = "travellers")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Ticket {
+public class Traveller {
 
     @Id
     private String id;
 
-    private String bookingId;
-    private String travellerId;
+    private String userId;   // reference to User
 
-    // SNAPSHOT DATA
-    private String travellerName;
+    private String name;
     private int age;
     private String gender;
-
-    private String qrCode;
-
-    private Boolean used;
 }

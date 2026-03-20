@@ -2,13 +2,15 @@ package com.example.demo.Service;
 
 import com.example.demo.Model.TicketBookingPayment;
 
+import java.util.List;
+
 public interface TicketBookingPaymentService {
 
-    TicketBookingPayment preview(TicketBookingPayment request);
+    List<TicketBookingPayment> preview(TicketBookingPayment request);
 
-    TicketBookingPayment makePayment(String id);
+    List<TicketBookingPayment> makePayment(String bookingId);
 
-    TicketBookingPayment getTicket(String id);
+    List<TicketBookingPayment> getTicketsByBooking(String bookingId);
 
-    TicketBookingPayment scanTicket(String qrCode); // NEW METHOD
+    TicketBookingPayment scanTicket(String qrCode);
 }

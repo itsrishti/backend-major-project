@@ -1,20 +1,14 @@
 package com.example.demo.Repository;
 
-
 import com.example.demo.Model.Ticket;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TicketRepository extends MongoRepository<Ticket, String> {
 
-    // Find all tickets by nationality (e.g., Indian, Foreigner)
-    List<Ticket> findByNationality(String nationality);
+    List<Ticket> findByBookingId(String bookingId);
 
-    // Find all student tickets
-    List<Ticket> findByStudentTrue();
-
-
-    // Find by ticket type (e.g., STUDENT, ADULT)
-    List<Ticket> findByTicketType(String ticketType);
+    Optional<Ticket> findByQrCode(String qrCode);
 }
