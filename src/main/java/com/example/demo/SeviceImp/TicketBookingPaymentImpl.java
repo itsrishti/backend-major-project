@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -14,62 +15,119 @@ public class TicketBookingPaymentImpl implements TicketBookingPaymentService {
 
     private final TicketBookingPaymentRepository repository;
 
-    // STEP 1 - PREVIEW
+    private static final int DAILY_TICKET_CAP = 100;
+
+    // ✅ STEP 1 - PREVIEW
     @Override
-    public TicketBookingPayment preview(TicketBookingPayment request) {
+    public List<TicketBookingPayment> preview(TicketBookingPayment request) {
 
-        request.setStatus("PREVIEW");
-        request.setCreatedAt(LocalDateTime.now());
-        request.setUsed(false);   // default false
-
-        return repository.save(request);
-    }
-
-    // STEP 2 - PAYMENT
-    @Override
-    public TicketBookingPayment makePayment(String id) {
-
-        TicketBookingPayment booking = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
-
-        booking.setStatus("PAID");
-        booking.setQrCode("QR_" + booking.getId());
-        booking.setUsed(false);
-
-        return repository.save(booking);
-    }
-
-    // STEP 3 - GET TICKET
-    @Override
-    public TicketBookingPayment getTicket(String id) {
-
-        TicketBookingPayment booking = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found"));
-
-        if (!"PAID".equals(booking.getStatus())) {
-            throw new RuntimeException("Payment not completed");
+        if (request.getVisitDate() == null) {
+            throw new RuntimeException("Visit date is required");
         }
 
-        return booking;
+        if (request.getTicketCount() <= 0) {
+            throw new RuntimeException("Ticket count must be greater than 0");
+        }
+
+        LocalDateTime start = request.getVisitDate().atStartOfDay();
+        LocalDateTime end = request.getVisitDate().atTime(23, 59, 59);
+
+        List<TicketBookingPayment> existing =
+                repository.findByMuseumIdAndCreatedAtBetween(
+                        request.getMuseumId(),
+                        start,
+                        end
+                );
+
+        // 🔥 Count actual tickets (not records)
+        int alreadyBooked = existing.stream()
+                .mapToInt(TicketBookingPayment::getTicketCount)
+                .sum();
+
+        if (alreadyBooked + request.getTicketCount() > DAILY_TICKET_CAP) {
+            throw new RuntimeException(
+                    "Only " + (DAILY_TICKET_CAP - alreadyBooked) + " tickets left"
+            );
+        }
+
+        String bookingId = UUID.randomUUID().toString();
+
+        List<TicketBookingPayment> tickets = new ArrayList<>();
+
+        for (int i = 1; i <= request.getTicketCount(); i++) {
+
+            TicketBookingPayment ticket = TicketBookingPayment.builder()
+                    .bookingId(bookingId)
+                    .userId(request.getUserId())
+                    .museumId(request.getMuseumId())
+                    .visitDate(request.getVisitDate())
+                    .ticketCount(request.getTicketCount())
+                    .totalAmount(request.getTotalAmount())
+                    .ticketNumber(i)
+                    .price(request.getTotalAmount() / request.getTicketCount())
+                    .status("PREVIEW")
+                    .qrCode(null)
+                    .used(false)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            tickets.add(repository.save(ticket)); // saving preview
+        }
+
+        return tickets;
     }
 
-    // STEP 4 - SCAN TICKET
+    // ✅ STEP 2 - PAYMENT
+    @Override
+    public List<TicketBookingPayment> makePayment(String bookingId) {
+
+        List<TicketBookingPayment> tickets = repository.findByBookingId(bookingId);
+
+        if (tickets.isEmpty()) {
+            throw new RuntimeException("Booking not found");
+        }
+
+        for (TicketBookingPayment ticket : tickets) {
+
+            ticket.setStatus("PAID");
+
+            String qr = "QR_" + ticket.getBookingId() + "_" + ticket.getTicketNumber();
+            ticket.setQrCode(qr);
+        }
+
+        return repository.saveAll(tickets);
+    }
+
+    // ✅ STEP 3
+    @Override
+    public List<TicketBookingPayment> getTicketsByBooking(String bookingId) {
+
+        List<TicketBookingPayment> tickets = repository.findByBookingId(bookingId);
+
+        if (tickets.isEmpty()) {
+            throw new RuntimeException("Tickets not found");
+        }
+
+        return tickets;
+    }
+
+    // ✅ STEP 4 - SCAN
     @Override
     public TicketBookingPayment scanTicket(String qrCode) {
 
-        TicketBookingPayment booking = repository.findByQrCode(qrCode)
+        TicketBookingPayment ticket = repository.findByQrCode(qrCode)
                 .orElseThrow(() -> new RuntimeException("Invalid QR Code"));
 
-        if (!"PAID".equals(booking.getStatus())) {
-            throw new IllegalStateException("Ticket not paid");
+        if (!"PAID".equals(ticket.getStatus())) {
+            throw new RuntimeException("Ticket not paid");
         }
 
-        if (Boolean.TRUE.equals(booking.getUsed())) {
-            throw new IllegalStateException("Ticket already used");
+        if (Boolean.TRUE.equals(ticket.getUsed())) {
+            throw new RuntimeException("Ticket already used");
         }
 
-        booking.setUsed(true);
+        ticket.setUsed(true);
 
-        return repository.save(booking);
+        return repository.save(ticket);
     }
 }

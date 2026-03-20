@@ -6,38 +6,28 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Document(collection = "ticket_payments")
+@Document(collection = "bookings")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TicketBookingPayment {
+public class Booking {
 
     @Id
     private String id;
 
-    private String bookingId;
-
     private String userId;
-
     private String museumId;
 
-    private LocalDate visitDate;
+    private List<String> travellerIds;
 
-    private int ticketCount;
-
+    private double pricePerTicket;
     private double totalAmount;
 
-    private int ticketNumber;
+    private String status; // PENDING, PAID, CANCELLED
 
-    private double price;
-
-    private String status;   // PREVIEW, PAID
-
-    private String qrCode;
-
-    private Boolean used;
-
+    private LocalDate visitDate;   // 🔥 REQUIRED for ticket cap logic
     private LocalDateTime createdAt;
 }
