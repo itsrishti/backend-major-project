@@ -24,18 +24,16 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
-                // ⭐ IMPORTANT FOR SWAGGER + LOGIN
+                // ✅ enable CORS
                 .cors(cors -> {})
 
                 .authorizeHttpRequests(auth -> auth
-                        // ⭐ allow preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         .requestMatchers(
                                 "/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/api/ticket-payment/scan",
                                 "/swagger-ui.html"
                         ).permitAll()
 
