@@ -23,27 +23,23 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-
-                // ✅ enable CORS
-                .cors(cors -> {})
-
+                .cors(cors -> cors.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        .requestMatchers(
-                                "/auth/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/testing/**").permitAll()
+
+                        // ✅ Explicitly allow all methods
+                        .requestMatchers(HttpMethod.GET, "/museums1/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/museums1/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/museums1/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/museums1/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
-
-                .sessionManagement(s ->
-                        s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

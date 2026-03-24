@@ -1,13 +1,13 @@
 package com.example.demo.Model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "newdataset")
+import java.util.Date;
+import java.util.List;
+
+@Document(collection = "testingdata")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,19 +18,26 @@ public class Museum {
     private String id;
 
     private String name;
-    private String address;
-    private String state;
+    private Address address;
 
     private String overview;
-    private String theme;
+    private List<String> themes;
 
-    private String establishment_year;
+    private Integer yearOfEstablishment;
+    private String website;
 
-    private String admission_fee;
+    private ContactInfo contactInfo;
 
-    private String timings;
+    private List<TicketPrice> ticketPrices;
+    private List<OperatingHour> operatingHours;
 
-    private String facilities;
+    private List<String> facilities;
 
-    private String contact_info;
+    private Date createdAt;
+    private Date updatedAt;
 }
+
+
+
+
+

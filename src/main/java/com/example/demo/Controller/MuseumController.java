@@ -32,6 +32,7 @@ public class MuseumController {
     // Get all museums
     @GetMapping
     public List<Museum> getAllMuseums() {
+
         return museumService.getAllMuseums();
     }
 
